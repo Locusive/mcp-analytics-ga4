@@ -4,7 +4,7 @@ For a person, or Claude/ChatGPT in a session with authorized Chrome control. A n
 
 ## Agent task you can copy
 
-> Set up MCP GA4 Java reporting in my chosen GA4 property using this guide. Inspect my existing signed-in work Chrome profile and reuse its GA tab. Read the event schema first. Confirm the property and stream from the live page. Reuse matching definitions and reports, preserve all existing configuration, and create the missing MCP reports. Keep credentials out of chat, screenshots and the repository. Verify saved report URLs and actual received events. Tell me what is verified and what is waiting for GA processing. Close every tab you create immediately when its task finishes; preserve my pre-existing tabs. If browser access, a property choice or account access is missing, state the exact missing item.
+> Set up MCP Analytics for GA4 reporting in my chosen GA4 property using this guide. Inspect my existing signed-in work Chrome profile and reuse its GA tab. Read the event schema first. Confirm the property and stream from the live page. Reuse matching definitions and reports, preserve all existing configuration, and create the missing MCP reports. Keep credentials out of chat, screenshots and the repository. Verify saved report URLs and actual received events. Tell me what is verified and what is waiting for GA processing. Close every tab you create immediately when its task finishes; preserve my pre-existing tabs. If browser access, a property choice or account access is missing, state the exact missing item.
 
 ## 1. Confirm the property and access
 
@@ -14,7 +14,7 @@ Creating custom definitions and shared detail reports requires Editor or Adminis
 
 ## 2. Configure server credentials
 
-Go to **Admin > Data collection and modification > Data streams**, select the web stream, then **Measurement Protocol API secrets**. Reuse the application's existing secret where available, or create one named `Agent Analytics`.
+Go to **Admin > Data collection and modification > Data streams**, select the web stream, then **Measurement Protocol API secrets**. Reuse the application's existing secret where available, or create one named `MCP Analytics for GA4`.
 
 If an agent encounters a legal or privacy acknowledgment that asserts end-user disclosures, rights or consent, stop and ask the user for confirmation at that step before accepting it. Authorization to set up reporting does not establish that those assertions are true. Record a safe restart URL and preserve the acknowledgment for the user.
 

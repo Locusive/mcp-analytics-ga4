@@ -1,6 +1,6 @@
 allprojects {
     group = providers.gradleProperty('releaseGroup').getOrElse('io.github.shanifdhanani')
-    version = providers.gradleProperty('releaseVersion').getOrElse('0.1.0')
+    version = providers.gradleProperty('releaseVersion').getOrElse('0.1.1')
     repositories { mavenCentral() }
 }
 subprojects {
