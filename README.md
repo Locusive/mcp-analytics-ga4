@@ -6,7 +6,7 @@ This repository includes the library, a runnable sample MCP server, and [Chrome 
 
 ## Install
 
-Coordinates for the first release are `io.github.shanifdhanani:mcp-ga4:0.1.0`. Confirm its availability on [Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4) before using a released dependency. Until publication, use `./gradlew :library:publishToMavenLocal` and `mavenLocal()` for development.
+Version `0.1.0` is available on [Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0).
 
 ```groovy
 repositories { mavenCentral() }
