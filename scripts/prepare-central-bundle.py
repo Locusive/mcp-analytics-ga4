@@ -17,7 +17,7 @@ environment.setdefault('MAVEN_SIGNING_PASSWORD', '')
 subprocess.run([str(root / 'gradlew'), 'clean', 'check', ':library:publishMavenJavaPublicationToCentralBundleRepository'],
                cwd=root, env=environment, check=True)
 repository = root / 'build' / 'central-repository'
-artifacts = list(repository.glob('**/mcp-ga4-*.pom'))
+artifacts = list(repository.glob('**/mcp-analytics-ga4-*.pom'))
 if len(artifacts) != 1:
     raise SystemExit('Expected exactly one versioned publication POM.')
 version_dir = artifacts[0].parent
@@ -31,7 +31,7 @@ for artifact in release_files + [path.with_name(path.name + '.asc') for path in 
     for algorithm in ['md5', 'sha1', 'sha256', 'sha512']:
         digest = hashlib.new(algorithm, artifact.read_bytes()).hexdigest()
         artifact.with_name(artifact.name + '.' + algorithm).write_text(digest)
-output = root / 'build' / 'mcp-ga4-central-bundle.zip'
+output = root / 'build' / 'mcp-analytics-ga4-central-bundle.zip'
 with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
     for artifact in sorted(version_dir.iterdir()):
         archive.write(artifact, artifact.relative_to(repository))

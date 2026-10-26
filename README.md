@@ -1,21 +1,21 @@
-# Agent Analytics
+# MCP Analytics for GA4
 
 **See how AI assistants use your MCP server, directly in Google Analytics 4.**
 
-Agent Analytics is an open source Java library that sends request counts, tool usage and reported agent names to your own GA4 account. Add it to your existing server with Gradle or Maven. No hosted collector or separate analytics dashboard to run.
+MCP Analytics for GA4 is an open source Java library that sends request counts, tool usage and reported agent names to your own GA4 account. Add it to your existing server with Gradle or Maven. No hosted collector or separate analytics dashboard to run.
 
-[![Build](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml/badge.svg)](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml)
-[Maven Central 0.1.0](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0) · Java 17+ · [Apache 2.0](LICENSE)
+[![Build](https://github.com/Locusive/mcp-analytics-ga4/actions/workflows/ci.yml/badge.svg)](https://github.com/Locusive/mcp-analytics-ga4/actions/workflows/ci.yml)
+[Maven Central 0.1.1](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-analytics-ga4/0.1.1) · Java 17+ · [Apache 2.0](LICENSE)
 
 ![Illustrative Google Analytics report showing MCP request counts by reported agent](docs/images/agent-analytics.svg)
 
 *Illustrative report with synthetic data. Your reports live in your Google Analytics account; setup instructions are included.*
 
-[Quickstart](#quickstart) · [GA4 graph setup](docs/GA4_CHROME_SETUP.md) · [Runnable sample](docs/SAMPLE_SERVER.md) · [Event reference](docs/EVENT_SCHEMA.md)
+[Product page](https://locusive.com/mcp-analytics/) · [Quickstart](#quickstart) · [GA4 graph setup](docs/GA4_CHROME_SETUP.md) · [Runnable sample](docs/SAMPLE_SERVER.md) · [Event reference](docs/EVENT_SCHEMA.md)
 
 ## What you can measure
 
-| Question | What Agent Analytics records |
+| Question | What MCP Analytics for GA4 records |
 |---|---|
 | How much is my MCP server used? | Protocol request counts over time, with notifications counted separately. |
 | Which tools are used? | Tool-call counts by tool name, request outcome and duration. |
@@ -25,17 +25,21 @@ Agent Analytics is an open source Java library that sends request counts, tool u
 
 Request tracking extracts metadata from the request and safe header fields. Downstream outcomes require hooks in your own application: a completed tool call cannot establish that someone opened a result or purchased. [Metric coverage and exact formulas](docs/SHOP_NOBI_METRIC_COVERAGE.md) explain the distinction.
 
+## Migrating from the original name
+
+This project was previously called Agent Analytics. Replace `io.github.shanifdhanani:mcp-ga4:0.1.0` with `io.github.shanifdhanani:mcp-analytics-ga4:0.1.1`. Use only the new dependency. Java packages (`ai.nobi.mcp.ga4`), public APIs, environment variables and GA4 event names are unchanged, so existing integrations and reports keep working. The original Maven artifact remains available and the old GitHub URL redirects here.
+
 ## Quickstart
 
 Requires Java 17+ and a GA4 web stream.
 
 ### 1. Add the dependency
 
-Version `0.1.0` is [published on Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0).
+Version `0.1.1` is [published on Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-analytics-ga4/0.1.1).
 
 ```groovy
 repositories { mavenCentral() }
-dependencies { implementation 'io.github.shanifdhanani:mcp-ga4:0.1.0' }
+dependencies { implementation 'io.github.shanifdhanani:mcp-analytics-ga4:0.1.1' }
 ```
 
 <details>
@@ -44,8 +48,8 @@ dependencies { implementation 'io.github.shanifdhanani:mcp-ga4:0.1.0' }
 ```xml
 <dependency>
   <groupId>io.github.shanifdhanani</groupId>
-  <artifactId>mcp-ga4</artifactId>
-  <version>0.1.0</version>
+  <artifactId>mcp-analytics-ga4</artifactId>
+  <version>0.1.1</version>
 </dependency>
 ```
 
@@ -123,7 +127,7 @@ Delivery uses a bounded in-memory queue with no retries or durable storage. `flu
 
 ## Built with Nobi
 
-Agent Analytics grew out of measuring how AI assistants use **[Nobi](https://nobi.ai)** and **[Shop Nobi](https://nobi.ai/shop)**. We are sharing the instrumentation as a standalone open source Java library.
+MCP Analytics for GA4 grew out of measuring how AI assistants use **[Nobi](https://nobi.ai)** and **[Shop Nobi](https://nobi.ai/shop)**. We are sharing the instrumentation as a standalone open source Java library.
 
 - **[Nobi](https://nobi.ai)** brings semantic and conversational search to websites and online stores.
 - **[Shop Nobi](https://nobi.ai/shop)** lets shoppers search across stores and buy directly from the merchant.

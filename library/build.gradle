@@ -5,7 +5,7 @@ plugins {
 }
 
 base {
-    archivesName = 'mcp-ga4'
+    archivesName = 'mcp-analytics-ga4'
 }
 
 java {
@@ -35,11 +35,11 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifactId = 'mcp-ga4'
+            artifactId = 'mcp-analytics-ga4'
             pom {
-                name = 'MCP GA4 Java'
+                name = 'MCP Analytics for GA4'
                 description = 'Send MCP server usage and outcome events to Google Analytics 4.'
-                url = 'https://github.com/Locusive/mcp-ga4-java'
+                url = 'https://locusive.com/mcp-analytics/'
                 licenses {
                     license {
                         name = 'Apache License, Version 2.0'
@@ -55,9 +55,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/Locusive/mcp-ga4-java.git'
-                    developerConnection = 'scm:git:ssh://git@github.com/Locusive/mcp-ga4-java.git'
-                    url = 'https://github.com/Locusive/mcp-ga4-java'
+                    connection = 'scm:git:https://github.com/Locusive/mcp-analytics-ga4.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/Locusive/mcp-analytics-ga4.git'
+                    url = 'https://github.com/Locusive/mcp-analytics-ga4'
                 }
             }
         }

@@ -1,6 +1,6 @@
 # Publish to Maven Central
 
-Release coordinates: `io.github.shanifdhanani:mcp-ga4:0.1.0`. The GitHub repository is `Locusive/mcp-ga4-java`; Maven namespace ownership is separate from the repository organization. Change the release version for every published update. Central artifacts are immutable. [Sonatype immutability policy](https://central.sonatype.org/publish/requirements/immutability/)
+Release coordinates: `io.github.shanifdhanani:mcp-analytics-ga4:0.1.1`. The GitHub repository is `Locusive/mcp-analytics-ga4`; Maven namespace ownership is separate from the repository organization. Change the release version for every published update. Central artifacts are immutable. [Sonatype immutability policy](https://central.sonatype.org/publish/requirements/immutability/)
 
 ## Account prerequisites
 
@@ -23,7 +23,7 @@ python3 scripts/prepare-central-bundle.py
 It runs `clean check`, publishes a signed Maven-layout repository under `build/central-repository`, checks that each JAR/POM/module artifact has a signature, creates checksum sidecars, and writes:
 
 ```text
-build/mcp-ga4-central-bundle.zip
+build/mcp-analytics-ga4-central-bundle.zip
 ```
 
 The script prints the bundle SHA-256 checksum and does not upload or publish anything. Record that checksum in the release receipt. Verify the generated signatures against the expected public key as well; signature presence alone is not cryptographic verification.
@@ -31,10 +31,10 @@ The script prints the bundle SHA-256 checksum and does not upload or publish any
 The bundle must contain the main JAR, sources JAR, Javadoc JAR, POM, and their ASCII-armored `.asc` signatures. Gradle module metadata may also be present with a signature. The Maven paths inside the ZIP start directly with the group path, with no extra build-directory prefix:
 
 ```text
-io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.jar
-io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.jar.asc
-io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.pom
-io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.pom.asc
+io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.jar
+io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.jar.asc
+io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.pom
+io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.pom.asc
 ...
 ```
 
@@ -54,9 +54,9 @@ Verify the POM and JAR at the actual repository, not only a local cache or the P
 
 ```bash
 curl --fail --head \
-  https://repo.maven.apache.org/maven2/io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.pom
+  https://repo.maven.apache.org/maven2/io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.pom
 curl --fail --head \
-  https://repo.maven.apache.org/maven2/io/github/shanifdhanani/mcp-ga4/0.1.0/mcp-ga4-0.1.0.jar
+  https://repo.maven.apache.org/maven2/io/github/shanifdhanani/mcp-analytics-ga4/0.1.1/mcp-analytics-ga4-0.1.1.jar
 ```
 
 Then resolve the dependency with `mavenCentral()` in a clean consumer using a new Gradle cache. Compile and execute its minimal tracking integration against a local HTTP capture collector. Verify sources/Javadocs and signatures are retrievable too. Maven Local resolution, uploading and Portal acceptance do not satisfy this check.
