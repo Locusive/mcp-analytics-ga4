@@ -1,0 +1,13 @@
+allprojects {
+    group = providers.gradleProperty('releaseGroup').getOrElse('io.github.shanifdhanani')
+    version = providers.gradleProperty('releaseVersion').getOrElse('0.1.0')
+    repositories { mavenCentral() }
+}
+subprojects {
+    plugins.withId('java') {
+        java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+        tasks.withType(Test).configureEach { useJUnitPlatform() }
+        tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+        tasks.withType(Javadoc).configureEach { options.encoding = 'UTF-8' }
+    }
+}
