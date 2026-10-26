@@ -1,0 +1,10 @@
+.gradle/
+**/build/
+.env
+.env.*
+*.asc
+*.key
+*.gpg
+secrets/
+
+agents/

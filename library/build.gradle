@@ -1,0 +1,82 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+base {
+    archivesName = 'mcp-ga4'
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
+    testImplementation platform('org.junit:junit-bom:5.13.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "CentralBundle"
+            url = rootProject.layout.buildDirectory.dir("central-repository")
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'mcp-ga4'
+            pom {
+                name = 'MCP GA4 Java'
+                description = 'Send MCP server usage and outcome events to Google Analytics 4.'
+                url = 'https://github.com/Locusive/mcp-ga4-java'
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'locusive'
+                        name = 'Locusive contributors'
+                        url = 'https://github.com/Locusive'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/Locusive/mcp-ga4-java.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/Locusive/mcp-ga4-java.git'
+                    url = 'https://github.com/Locusive/mcp-ga4-java'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = providers.environmentVariable('MAVEN_SIGNING_KEY').orNull
+    def signingPassword = providers.environmentVariable('MAVEN_SIGNING_PASSWORD').orNull
+    if (signingKey) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
+    }
+}
+
+// Keep release artifacts reproducible and carry their redistribution notices.
+tasks.withType(Jar).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    from(rootProject.file('LICENSE')) { into 'META-INF' }
+    from(rootProject.file('NOTICE')) { into 'META-INF' }
+}
