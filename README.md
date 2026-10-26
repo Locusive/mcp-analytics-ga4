@@ -5,9 +5,7 @@
 Agent Analytics is an open source Java library that sends request counts, tool usage and reported agent names to your own GA4 account. Add it to your existing server with Gradle or Maven. No hosted collector or separate analytics dashboard to run.
 
 [![Build](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml/badge.svg)](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.shanifdhanani/mcp-ga4)](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0)
-[![Java 17+](https://img.shields.io/badge/Java-17%2B-437291)](https://github.com/Locusive/mcp-ga4-java/blob/main/build.gradle)
-[![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
+[Maven Central 0.1.0](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0) · Java 17+ · [Apache 2.0](LICENSE)
 
 ![Illustrative Google Analytics report showing MCP request counts by reported agent](docs/images/agent-analytics.svg)
 
