@@ -72,7 +72,7 @@ Google describes Measurement Protocol as an addition to browser/app tracking; se
 
 Events enter a bounded in-memory queue; MCP handling does not wait for HTTP. `track(...)` returns local acceptance, `flush(Duration)` waits for terminal delivery outcomes, and `stats()` reports accepted, delivered, rejected and failed counts. A delivered event means an HTTP success, not confirmed GA processing. No retries or durable storage are provided. Close the sender during graceful shutdown and use a host-managed durable outbox if lossless reporting is required.
 
-Queries and prompts are excluded by default. Optional redacted query text is capped at GA's string limit. `sessionId(...)` always exports a SHA-256 correlation hash; raw MCP transport session credentials are not sent. Only scalar metadata is accepted, with no automatic collection of IP addresses, authorization headers, tool arguments or results. Sending personal information to GA is prohibited. See [security guidance](SECURITY.md).
+Query text and prompts are excluded by default. The explicit search hook sends a query hash for correlation; hashing is not anonymization, so exclude personal information before calling it. Optional redacted query text is capped at GA's string limit. `sessionId(...)` always exports a SHA-256 correlation hash; raw MCP transport session credentials are not sent. Only scalar metadata is accepted, with no automatic collection of IP addresses, authorization headers, tool arguments or results. Sending personal information to GA is prohibited. See [security guidance](SECURITY.md).
 
 - [Event schema and application hooks](docs/EVENT_SCHEMA.md)
 - [Metric coverage and exact formulas](docs/SHOP_NOBI_METRIC_COVERAGE.md)
