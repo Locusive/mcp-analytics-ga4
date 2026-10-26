@@ -14,7 +14,9 @@ Creating custom definitions and shared detail reports requires Editor or Adminis
 
 ## 2. Configure server credentials
 
-Go to **Admin > Data collection and modification > Data streams**, select the web stream, then **Measurement Protocol API secrets**. Reuse the application's existing secret where available, or create one named `MCP GA4 Java`. Complete any GA acknowledgment required by the UI.
+Go to **Admin > Data collection and modification > Data streams**, select the web stream, then **Measurement Protocol API secrets**. Reuse the application's existing secret where available, or create one named `Agent Analytics`.
+
+If an agent encounters a legal or privacy acknowledgment that asserts end-user disclosures, rights or consent, stop and ask the user for confirmation at that step before accepting it. Authorization to set up reporting does not establish that those assertions are true. Record a safe restart URL and preserve the acknowledgment for the user.
 
 Put the measurement ID and secret into the application's existing secret mechanism as `GA4_MEASUREMENT_ID` and `GA4_API_SECRET`. Never copy the secret into chat, screenshots, an issue, README or a committed environment file. If the agent cannot transfer a secret safely to the host's secret mechanism, have the user do that step. Do not regenerate or delete existing secrets merely to discover their values. [Google's event sending prerequisites](https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag)
 
@@ -88,6 +90,8 @@ Go to **Reports > Library > Create new report > Create detail report > Blank**. 
 | MCP Searches | MCP Agent | MCP Searches | Event name exactly `mcp_search` |
 | MCP AI Query Activity | MCP Agent | MCP AI Query Activities | Event name matches `^(mcp_search|mcp_page_request)$` |
 | MCP Link Opens | MCP Store | MCP Clicks | Event name exactly `mcp_link_open` |
+
+For **exactly matches**, GA may offer only values already observed in the property. If the required value is absent, use **matches regex** with an anchored expression instead: `^mcp_request$` for the request, agent and source reports; `^tools/call$` for the tool report; `^mcp_search$` for searches; and `^mcp_link_open$` for link opens. These match the same complete values and can be saved before events arrive. Use **matches regex**, not **matches partial regex**, for the AI query activity expression in the table.
 
 Add **MCP Server** as an available secondary dimension to every report. Enable a line chart for changes over time and a bar chart for breakdowns where supported. Save each with the name above and reopen its saved view. The total request metric excludes notifications; do not replace it with raw Event count, which includes those protocol messages. [Create a detail report](https://support.google.com/analytics/answer/13844077?hl=en)
 
