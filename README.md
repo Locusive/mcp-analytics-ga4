@@ -1,17 +1,47 @@
 # Agent Analytics
 
-See how AI assistants use your MCP server, directly in Google Analytics 4. Agent Analytics is an open source Java library for tracking requests, tool usage, reported AI clients and downstream outcomes. Java 17+, Gradle or Maven, no hosted collector.
+**See how AI assistants use your MCP server, directly in Google Analytics 4.**
 
-This repository includes the library, a runnable sample MCP server, and [Chrome setup instructions for humans and browser-capable Claude or ChatGPT](docs/GA4_CHROME_SETUP.md).
+Agent Analytics is an open source Java library that sends request counts, tool usage and reported agent names to your own GA4 account. Add it to your existing server with Gradle or Maven. No hosted collector or separate analytics dashboard to run.
 
-## Install
+[![Build](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml/badge.svg)](https://github.com/Locusive/mcp-ga4-java/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.shanifdhanani/mcp-ga4)](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0)
+[![Java 17+](https://img.shields.io/badge/Java-17%2B-437291)](https://github.com/Locusive/mcp-ga4-java/blob/main/build.gradle)
+[![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
 
-Version `0.1.0` is available on [Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0).
+![Illustrative Google Analytics report showing MCP request counts by reported agent](docs/images/agent-analytics.svg)
+
+*Illustrative report with synthetic data. Your reports live in your Google Analytics account; setup instructions are included.*
+
+[Quickstart](#quickstart) · [GA4 graph setup](docs/GA4_CHROME_SETUP.md) · [Runnable sample](docs/SAMPLE_SERVER.md) · [Event reference](docs/EVENT_SCHEMA.md)
+
+## What you can measure
+
+| Question | What Agent Analytics records |
+|---|---|
+| How much is my MCP server used? | Protocol request counts over time, with notifications counted separately. |
+| Which tools are used? | Tool-call counts by tool name, request outcome and duration. |
+| Which agents are calling? | Reported clients such as Claude, ChatGPT, Claude Code, Cowork and Cursor, plus recognized bots and health checks. |
+| How did they find my server? | Explicit source/campaign tags or available referrer-host evidence. Missing discovery information stays unknown. |
+| What happened afterward? | Optional application hooks for accepted searches, messages, link opens, carts, views and attributed orders. |
+
+Request tracking extracts metadata from the request and safe header fields. Downstream outcomes require hooks in your own application: a completed tool call cannot establish that someone opened a result or purchased. [Metric coverage and exact formulas](docs/SHOP_NOBI_METRIC_COVERAGE.md) explain the distinction.
+
+## Quickstart
+
+Requires Java 17+ and a GA4 web stream.
+
+### 1. Add the dependency
+
+Version `0.1.0` is [published on Maven Central](https://central.sonatype.com/artifact/io.github.shanifdhanani/mcp-ga4/0.1.0).
 
 ```groovy
 repositories { mavenCentral() }
 dependencies { implementation 'io.github.shanifdhanani:mcp-ga4:0.1.0' }
 ```
+
+<details>
+<summary>Maven</summary>
 
 ```xml
 <dependency>
@@ -21,9 +51,22 @@ dependencies { implementation 'io.github.shanifdhanani:mcp-ga4:0.1.0' }
 </dependency>
 ```
 
-## Add it to your server
+</details>
 
-Create one sender for the application, then call the tracking hook after each JSON-RPC request completes. The integration is framework independent: it works with an existing handler rather than requiring a different MCP server.
+### 2. Configure Google Analytics
+
+Find your web stream's measurement ID and create a Measurement Protocol API secret. Supply them through your existing server secret mechanism:
+
+| Environment variable | Value |
+|---|---|
+| `GA4_MEASUREMENT_ID` | Your web stream's `G-...` measurement ID |
+| `GA4_API_SECRET` | Its private Measurement Protocol API secret |
+
+[The setup guide](docs/GA4_CHROME_SETUP.md) covers these steps and the custom dimensions, metrics and graphs. You can give it to Claude or ChatGPT in a session with authorized Chrome control. Keep the API secret on your server and out of chat, source control and browser code.
+
+### 3. Instrument your request handler
+
+Create one sender when your application starts. Call the hook once after each JSON-RPC request or notification completes, including errors.
 
 ```java
 import ai.nobi.mcp.ga4.Ga4Client;
@@ -37,49 +80,66 @@ Ga4Client ga4 = new Ga4Client(Ga4Config.builder()
         .build());
 McpAnalytics analytics = new McpAnalytics(ga4);
 
+// Use your application's shutdown lifecycle to drain queued events.
+Runtime.getRuntime().addShutdownHook(new Thread(ga4::close));
+
+// In your existing request handler, after the request completes:
 TrackingContext context = TrackingContext.builder()
         .serverName("catalog-server")
-        .clientId("stable-anonymous-client-id")
-        .conversationId("opaque-conversation-id")
         .build();
 
-// After your existing handler completes. parsedRequest and headers come from your server.
-analytics.request(context, parsedRequest, headers, "success", elapsedMillis);
+// These values come from your handler. Inspect MCP errors as well as HTTP status.
+analytics.request(context, parsedRequest, headers, outcome, elapsedMillis);
 ```
 
-`clientId` must be an opaque identifier stable for the caller you can actually identify. Do not use an IP address, email, access token, the agent name, or a new random value per request. If omitted, `clientId` defaults to a shared per-process fallback that preserves request totals but cannot establish unique visitors. See [identity and counting rules](docs/EVENT_SCHEMA.md).
+This hook works with an existing Java MCP framework or custom handler. It performs no network I/O on the request thread. `request(...)` returns whether the event entered the local queue; monitor that result and `ga4.stats()` for dropped or failed events.
 
-For legacy MCP clients, retain the reported initialize client name for subsequent requests and supply `agentName(...)`. The request hook also recognizes newer per-request `_meta["io.modelcontextprotocol/clientInfo"]` metadata. Supply the same resolved agent in the context for search and downstream outcome hooks. Headers can provide a fallback, with bots and health checks classified separately. Identity is reported metadata, not proof of which model or person made the call.
+For older MCP clients, retain the reported initialize client name and supply `agentName(...)` on later requests. Newer per-request `_meta["io.modelcontextprotocol/clientInfo"]` metadata is also supported. Pass the same resolved agent and attribution context to search and downstream hooks. Agent identity is reported metadata, not proof of a model or person.
 
-Searches and outcomes need explicit application hooks. Record a search only after your application accepts it. Connect returned links to your website or redirect handler to observe clicks. Purchases require a trusted order source. The library cannot infer downstream actions from a successful tool response. [Metric coverage](docs/SHOP_NOBI_METRIC_COVERAGE.md) describes all hooks and formulas.
+If you have a stable, non-personal caller identity, supply `clientId(...)`. Otherwise the library uses a shared per-process fallback that preserves request totals but cannot establish visitor counts. [Identity and counting rules](docs/EVENT_SCHEMA.md) cover browser joins, sessions and correlation IDs.
 
-## Run the sample
+## Try the sample
+
+Clone this repository, configure the two environment variables above, then run:
 
 ```bash
 ./gradlew check
 ./gradlew :sample-server:run
 ```
 
-Set `GA4_MEASUREMENT_ID` and `GA4_API_SECRET` through your local secret mechanism to send real GA events. Never commit the secret. The sample's own configuration and endpoint instructions are in [the sample guide](docs/SAMPLE_SERVER.md).
+The sample starts at `http://127.0.0.1:8099/mcp`. [Follow its walkthrough](docs/SAMPLE_SERVER.md) to run tool calls, open returned links and generate synthetic outcomes. Use a development GA stream. Local HTTP tests run without Google credentials.
 
-## Set up Google Analytics
+## Counting and reporting
 
-Follow [GA4 Chrome setup](docs/GA4_CHROME_SETUP.md) to create the custom fields and request, tool, agent and source graphs. You can give that file to a browser-capable agent after authorizing it to configure your chosen property. No browser control is assumed for a normal chat session.
+Requests, tool calls, AI query activities, accepted searches and messages are separate counts. Notifications do not inflate the request metric. Repeated link opens count as clicks, while CTR uses **distinct accepted searches with a qualifying click / accepted searches**.
 
-Google describes Measurement Protocol as an addition to browser/app tracking; server-only reporting is partial. Request and tool event counts are useful directly, but GA users, engagement and acquisition reports do not automatically identify people or reconstruct MCP discovery. Use explicit source tags and first-party identifiers where available. [Google documentation](https://developers.google.com/analytics/devguides/collection/protocol/ga4)
+The included Chrome guide creates GA request, tool, agent, source and outcome reports. Exact visitor conversion, multi-day click attribution and same-browser conversation counts need your application's identity signals and the joins in [the BigQuery export queries](docs/queries.sql). The coverage guide documents every supported input and denominator; it does not imply that those downstream hooks are already wired in a particular application.
 
-## Delivery and data
+Google describes Measurement Protocol as an addition to browser/app tracking, with partial reporting for server-only use. GA user, session and acquisition reports do not automatically identify people or reconstruct MCP discovery. [Google's documentation](https://developers.google.com/analytics/devguides/collection/protocol/ga4)
 
-Events enter a bounded in-memory queue; MCP handling does not wait for HTTP. `track(...)` returns local acceptance, `flush(Duration)` waits for terminal delivery outcomes, and `stats()` reports accepted, delivered, rejected and failed counts. A delivered event means an HTTP success, not confirmed GA processing. No retries or durable storage are provided. Close the sender during graceful shutdown and use a host-managed durable outbox if lossless reporting is required.
+## Privacy and delivery
 
-Query text and prompts are excluded by default. The explicit search hook sends a query hash for correlation; hashing is not anonymization, so exclude personal information before calling it. Optional redacted query text is capped at GA's string limit. `sessionId(...)` always exports a SHA-256 correlation hash; raw MCP transport session credentials are not sent. Only scalar metadata is accepted, with no automatic collection of IP addresses, authorization headers, tool arguments or results. Sending personal information to GA is prohibited. See [security guidance](SECURITY.md).
+Query text and prompts are excluded by default. The explicit search hook sends a query hash for correlation; hashing is not anonymization, so exclude personal information before calling it. Redacted query text is opt-in. Transport session IDs are always hashed, and raw authorization headers, IP addresses, tool arguments and results are not collected. [Security and privacy](SECURITY.md)
 
+Delivery uses a bounded in-memory queue with no retries or durable storage. `flush(Duration)` waits for terminal delivery outcomes; an HTTP success means receipt, not confirmed GA processing. Monitor accepted, delivered, rejected and failed counts, close the sender during graceful shutdown, and verify actual received events in GA. Use a host-managed durable outbox if you need stronger delivery guarantees.
+
+## Built with Nobi
+
+Agent Analytics grew out of measuring how AI assistants use **[Nobi](https://nobi.ai)** and **[Shop Nobi](https://nobi.ai/shop)**. We are sharing the instrumentation as a standalone open source Java library.
+
+- **[Nobi](https://nobi.ai)** brings semantic and conversational search to websites and online stores.
+- **[Shop Nobi](https://nobi.ai/shop)** lets shoppers search across stores and buy directly from the merchant.
+- **[Locusive](https://locusive.com)** is home to these products and our broader software portfolio.
+
+## Documentation and contributing
+
+- [GA4 setup for humans and Chrome-capable agents](docs/GA4_CHROME_SETUP.md)
 - [Event schema and application hooks](docs/EVENT_SCHEMA.md)
 - [Metric coverage and exact formulas](docs/SHOP_NOBI_METRIC_COVERAGE.md)
+- [Sample server and controlled verification](docs/SAMPLE_SERVER.md)
 - [GA BigQuery export queries](docs/queries.sql)
-- [Maven Central release procedure](docs/PUBLISHING.md)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](CONTRIBUTING.md) and [release procedure](docs/PUBLISHING.md)
 
 ## License
 
-[Apache License 2.0](LICENSE). Includes a patent grant and permits commercial use, modification and redistribution subject to its terms. Google Analytics, MCP, Claude and ChatGPT are third-party products; this project is not endorsed by their owners.
+[Apache License 2.0](LICENSE), including its patent grant. Google Analytics, MCP, Claude and ChatGPT are third-party products; this project is not endorsed by their owners.
