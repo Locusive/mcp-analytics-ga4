@@ -1,6 +1,6 @@
-# MCP GA4 Java
+# Agent Analytics
 
-Send your MCP server's requests, tool usage, reported AI clients and outcomes directly to Google Analytics 4. Java 17+, Gradle or Maven, no hosted collector.
+See how AI assistants use your MCP server, directly in Google Analytics 4. Agent Analytics is an open source Java library for tracking requests, tool usage, reported AI clients and downstream outcomes. Java 17+, Gradle or Maven, no hosted collector.
 
 This repository includes the library, a runnable sample MCP server, and [Chrome setup instructions for humans and browser-capable Claude or ChatGPT](docs/GA4_CHROME_SETUP.md).
 
